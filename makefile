@@ -1,11 +1,11 @@
-main: client server
+main: server client
 	@echo "boopie!"
 
 
-server: myserver.c
+server: Mailserver/myserver.c
 	@echo "Making Server Vsys 1 - myserver.c binary!"
-	gcc  ./myserver.c -o myserver
+	gcc  Mailserver/myserver.c -o Mailserver/myserver
 
-client: myclient.c
+client: Mailclient/myclient.c
 	@echo "Making Client Vsys1 - myclient.c binary!"
-	gcc  ./myclient.c -o myclient
+	gcc  Mailclient/myclient.c -o Mailclient/myclient
