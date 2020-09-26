@@ -1,4 +1,5 @@
 /* myserver.c */
+#include <iostream>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -9,6 +10,8 @@
 #include <string.h>
 #define BUF 1024
 #define PORT 6543
+
+using namespace std;
 
 int main (void) {
   int create_socket, new_socket;
@@ -29,7 +32,7 @@ int main (void) {
      return EXIT_FAILURE;
   }
   listen (create_socket, 5);
-  
+
   addrlen = sizeof (struct sockaddr_in);
 
   while (1) {
@@ -46,6 +49,30 @@ int main (void) {
         if( size > 0)
         {
            buffer[size] = '\0';
+
+            char SEND = 'S';
+            char LIST = 'L';
+            char READ = 'R';
+            char DEL = 'D';
+            char QUIT = 'A';
+           if(buffer[0] == SEND)
+           {
+                std::cout<<"Send received";
+           }else if(buffer[0] == LIST)
+           {
+                std::cout<<"LIST received";
+           }else if(buffer[0] == READ)
+           {
+                std::cout<<"READ received";
+           }else if(buffer[0] == DEL)
+           {
+                std::cout<<"DEL received";
+           }else if(buffer[0] == QUIT)
+           {
+                break;
+           }
+
+
            printf ("Message received: %s\n", buffer);
         }
         else if (size == 0)
