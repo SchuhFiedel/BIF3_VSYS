@@ -3,7 +3,7 @@ VSYS Project
 
 Client Server Communication
 
-Used Language: C
+Used Language: C, c++
 
 Don't use any Libraries for Server Communication
 
