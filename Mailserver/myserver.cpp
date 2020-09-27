@@ -1,4 +1,4 @@
-/* myserver.c */
+/* myserver.cpp */
 #include <iostream>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -15,32 +15,40 @@ using namespace std;
 
 int main (void) {
   int create_socket, new_socket;
-  socklen_t addrlen;
-  char buffer[BUF];
+  socklen_t addrlen; //int 32 bit
+  char buffer[BUF];   //string with 1024 characters
   int size;
-  struct sockaddr_in address, cliaddress;
+  struct sockaddr_in address, cliaddress; //makes two structs with adress, port and adress_family (AF_INET)
 
   create_socket = socket (AF_INET, SOCK_STREAM, 0);
 
-  memset(&address,0,sizeof(address));
-  address.sin_family = AF_INET;
+  memset(&address,0,sizeof(address)); //fill with 0
+  address.sin_family = AF_INET;           // I HAVE NO FUCKIN IDEA WHAT IS HaPPENING HERE
   address.sin_addr.s_addr = INADDR_ANY;
   address.sin_port = htons (PORT);
+
+
+/*     bind() assigns
+       the address specified by addr to the socket referred to by the file
+       descriptor sockfd.  addrlen specifies the size, in bytes, of the
+       address structure pointed to by addr.  Traditionally, this operation
+       is called “assigning a name to a socket”.*/
 
   if (bind ( create_socket, (struct sockaddr *) &address, sizeof (address)) != 0) {
      perror("bind error");
      return EXIT_FAILURE;
   }
-  listen (create_socket, 5);
+  listen (create_socket, 5); //Socket to listen to and maximal connection Queue lenght
 
   addrlen = sizeof (struct sockaddr_in);
 
-  while (1) {
-     printf("Waiting for connections...\n");
+  bool end = false;
+  while (end == false) {
+     std::cout << "Waiting for Connection on: IP: " << inet_ntoa(address.sin_addr) << " Port: " << htons(address.sin_port) << "\n";
      new_socket = accept ( create_socket, (struct sockaddr *) &cliaddress, &addrlen );
      if (new_socket > 0)
      {
-        printf ("Client connected from %s:%d...\n", inet_ntoa (cliaddress.sin_addr),ntohs(cliaddress.sin_port));
+        printf ("Client connected from %s:%d...\n", inet_ntoa (cliaddress.sin_addr), ntohs(cliaddress.sin_port));
         strcpy(buffer,"Welcome to myserver, Please enter your command:\n");
         send(new_socket, buffer, strlen(buffer),0);
      }
@@ -50,11 +58,12 @@ int main (void) {
         {
            buffer[size] = '\0';
 
-            char SEND = 'S';
-            char LIST = 'L';
-            char READ = 'R';
-            char DEL = 'D';
-            char QUIT = 'A';
+//Defining Stuff that has to be checked
+           char SEND = 'S';
+           char LIST = 'L';
+           char READ = 'R';
+           char DEL = 'D';
+           char QUIT = 'Q';
            if(buffer[0] == SEND)
            {
                 std::cout<<"Send received";
@@ -69,7 +78,8 @@ int main (void) {
                 std::cout<<"DEL received";
            }else if(buffer[0] == QUIT)
            {
-                break;
+                close (new_socket);
+                end = true;
            }
 
 
