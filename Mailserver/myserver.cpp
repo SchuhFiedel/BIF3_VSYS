@@ -1,31 +1,48 @@
 /* myserver.cpp */
 #include <iostream>
+#include <bits/stdc++.h>
+#include <sys/stat.h>
 #include <sys/types.h>
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+
+
+
 #define BUF 1024
 #define PORT 6543
 
 using namespace std;
 
-int main (void) {
+
+
+
+int main (int argc, char **argv) {
   int create_socket, new_socket;
   socklen_t addrlen; //int 32 bit
   char buffer[BUF];   //string with 1024 characters
   int size;
   struct sockaddr_in address, cliaddress; //makes two structs with adress, port and adress_family (AF_INET)
 
+  if( argc < 2 ){
+     printf("Usage: %s PortNumber MailFolder (PATH)\n", argv[0]);
+     exit(EXIT_FAILURE);
+  }
+  char * mailpath = argv[2];
+
   create_socket = socket (AF_INET, SOCK_STREAM, 0);
 
   memset(&address,0,sizeof(address)); //fill with 0
   address.sin_family = AF_INET;           // I HAVE NO FUCKIN IDEA WHAT IS HaPPENING HERE
   address.sin_addr.s_addr = INADDR_ANY;
-  address.sin_port = htons (PORT);
+  address.sin_port = htons(atoi(argv[1]));
 
 
 /*     bind() assigns
@@ -43,6 +60,7 @@ int main (void) {
   addrlen = sizeof (struct sockaddr_in);
 
   bool end = false;
+
   while (end == false) {
      std::cout << "Waiting for Connection on: IP: " << inet_ntoa(address.sin_addr) << " Port: " << htons(address.sin_port) << "\n";
      new_socket = accept ( create_socket, (struct sockaddr *) &cliaddress, &addrlen );
@@ -84,6 +102,20 @@ int main (void) {
 
 
            printf ("Message received: %s\n", buffer);
+
+
+//Create Direcotry with buffer name -- later uSERNAME
+            std::string pathPartOne(mailpath);
+            std::string pathpartTwo(buffer);
+            std::string path = pathPartOne + "/" + pathpartTwo;
+           if(mkdir(path.c_str(), 0777) == -1){
+             std::cerr << "Error :  " << strerror(errno) << std::endl;
+           }
+           else{
+             std::cout << "Directory "<< buffer <<" created";
+           }
+
+
         }
         else if (size == 0)
         {

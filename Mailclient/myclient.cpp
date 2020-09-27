@@ -11,14 +11,20 @@
 #define BUF 1024
 #define PORT 6543
 
+
+void sendMessage(int socket, char * buffer);
+void printMenu();
+void menu(char * buffer, int socket);
+
+
 int main (int argc, char **argv) {
   int create_socket;
   char buffer[BUF];
   struct sockaddr_in address;
   int size;
 
-  if( argc < 3 ){
-     printf("Usage: %s ServerAdresse PortNumber\n", argv[0]);
+  if( argc < 4 ){
+     printf("Usage: %s ServerAdresse PortNumber Username\n", argv[0]);
      exit(EXIT_FAILURE);
   }
   /*   DEBUGSTUFF
@@ -38,17 +44,20 @@ int main (int argc, char **argv) {
   address.sin_port = htons(atoi(argv[2])); //Use Port from Input (convert from char* to int)
   inet_aton (argv[1], &address.sin_addr); //convert input IP to usable IP adress
 
-  std::cout << "using ip: " << inet_ntoa(address.sin_addr) << " Port " << htons(address.sin_port) << "\n";
+  //std::cout << "using ip: " << inet_ntoa(address.sin_addr) << " Port " << htons(address.sin_port) << "\n";
 
   if (connect (create_socket, (struct sockaddr *) &address, sizeof (address)) == 0)
   {
      printf ("Connection with server (%s) established\n", inet_ntoa (address.sin_addr));
+       sendMessage(create_socket, argv[3]); //send Uername to Server
+
      size=recv(create_socket,buffer,BUF-1, 0);
      if (size>0)
      {
-        buffer[size]= '\0';
+        buffer[size]= '\0';         //READ WHAT THE SERVER SENT US
         printf("%s",buffer);
      }
+
   }
   else
   {
@@ -57,11 +66,79 @@ int main (int argc, char **argv) {
   }
 
   do {
-     printf ("Send message: ");
-     fgets (buffer, BUF, stdin);
-     send(create_socket, buffer, strlen (buffer), 0);
+/************** MAIN LOOP ********************/
+
+    printMenu();
+    menu(buffer, create_socket);
+
   }
   while (strcmp (buffer, "quit\n") != 0);
   close (create_socket);
   return EXIT_SUCCESS;
 }
+
+/***FUNCTIONS***/
+
+void sendMessage(int socket, char * message){
+  //fgets (buffer, BUF, stdin);//save stdin into buffer with max buffer size
+  //printf ("Sending message: {%s}", buffer);
+  //fgets (message, BUF, stdin);
+  send(socket, message, strlen (message), 0);  // send buffer
+}
+
+void printMenu(){
+  std::cout << "**************************************************************************************************" << std::endl;
+  std::cout << "1) SEND: Senden einer Nachricht." << std::endl;
+  std::cout << "2) LIST: Auflisten der Nachrichten. Anzahl der Nachrichten die Betreff Zeile anzeigen." << std::endl;
+  std::cout << "3) READ: Anzeigen einer bestimmten Nachricht." << std::endl;
+  std::cout << "4) DEL : Löschen der Nachricht." << std::endl;
+  std::cout << "5) QUIT: Logout." << std::endl;
+  std::cout << "Please Enter the Number before the Option!" << std::endl;
+  std::cout << "**************************************************************************************************" << std::endl;
+}
+
+void menu(char * buffer, int socket){
+    fgets (buffer, BUF, stdin);
+    //std::cout<<buffer[0];
+    int input = atoi(buffer);
+    //std::cout<<input;
+    switch(input){
+      case 1:
+          system("clear");
+          std::cout << "SEND" << std::endl;
+          //sendMail();
+        break;
+      case 2:
+          system("clear");
+          std::cout << "LIST" << std::endl;
+          //listMails();
+        break;
+      case 3:
+          system("clear");
+          std::cout << "READ" << std::endl;
+          //readMail();
+        break;
+      case 4:
+          system("clear");
+          std::cout << "DEL" << std::endl;
+          //deleteMail();
+        break;
+      case 5:
+          std::cout << "QUIT" << std::endl;
+          close (socket);
+          exit(0);
+          //logout();
+        break;
+      default:
+          system("clear");
+          std::cout << "Bäh" << std::endl;
+        break;
+    }
+}
+/*
+void sendMail();
+void listMails();
+void readMail();
+void deleteMail();
+void logout();
+*/
