@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
+#include <cstring>
 #define BUF 1024
 #define PORT 6543
 
@@ -22,7 +23,7 @@ void readMail();
 void deleteMail();
 void logout();
 
-
+std::string global_username;
 
 int main (int argc, char **argv) {
   int create_socket;
@@ -56,6 +57,8 @@ int main (int argc, char **argv) {
   if (connect (create_socket, (struct sockaddr *) &address, sizeof (address)) == 0)
   {
      printf ("Connection with server (%s) established\n", inet_ntoa (address.sin_addr));
+     std::string username(argv[3]);
+     global_username = username;
        sendMessage(create_socket, argv[3]); //send Uername to Server
 
      size=recv(create_socket,buffer,BUF-1, 0);
@@ -148,13 +151,24 @@ void sendMail(int socket){
 
   sendMessage(socket, "S");
 
-  char * receiver;
-  char * sub;
-  std::cout << "Please enter the receipient" << std::endl;
-  fgets(receiver, BUF, stdin);
+  char  receiver [80];
+  char  sub [80];
+  char  msg [BUF-85-85];
+  std::cout << "Please enter the Receipient" << std::endl;
+  fgets(receiver, 80, stdin);
   std::cout << "Please enter the Subject" << std::endl;
-  fgets(sub, BUF, stdin);
+  fgets(sub, 80, stdin);
+  std::cout << "Please enter the Message" << std::endl;
+  fgets(msg, BUF, stdin);
+  std::string s_receiver(receiver);
+  std::string s_sub(sub);
+  std::string s_msg(msg);
 
+  sendMessage(socket, receiver);
+  sendMessage(socket, sub);
+
+  std::string message = "<sender>" + global_username + "<sender>\n" +"<empfänger>" + s_receiver + "<empfänger>\n"+ "<subject>" + s_sub + "<subject>\n"+"<text>" + msg + "<text>\n";
+  std::cout<<message;
 
 }
 /*
