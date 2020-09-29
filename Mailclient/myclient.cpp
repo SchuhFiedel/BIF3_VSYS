@@ -18,7 +18,7 @@ void printMenu();
 void menu(char * buffer, int socket);
 
 void sendMail(int socket);
-void listMails();
+void listMails(int socket);
 void readMail();
 void deleteMail();
 void logout();
@@ -121,7 +121,7 @@ void menu(char * buffer, int socket){
       case 2:
           system("clear");
           std::cout << "LIST" << std::endl;
-          //listMails();
+          listMails(socket);
         break;
       case 3:
           system("clear");
@@ -171,9 +171,17 @@ void sendMail(int socket){
   std::cout<<message;
 
 }
-/*
-void listMails();
-void readMail();
+
+void listMails(int socket){
+  sendMessage(socket, "L");
+  char username[8];
+  strcpy(username, global_username.c_str());
+
+  sendMessage(socket, username);
+
+
+}
+/*void readMail();
 void deleteMail();
 void logout();
 */
