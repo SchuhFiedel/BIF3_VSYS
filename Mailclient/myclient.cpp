@@ -16,6 +16,13 @@ void sendMessage(int socket, char * buffer);
 void printMenu();
 void menu(char * buffer, int socket);
 
+void sendMail(int socket);
+void listMails();
+void readMail();
+void deleteMail();
+void logout();
+
+
 
 int main (int argc, char **argv) {
   int create_socket;
@@ -106,7 +113,7 @@ void menu(char * buffer, int socket){
       case 1:
           system("clear");
           std::cout << "SEND" << std::endl;
-          //sendMail();
+          sendMail(socket);
         break;
       case 2:
           system("clear");
@@ -135,8 +142,22 @@ void menu(char * buffer, int socket){
         break;
     }
 }
+
+void sendMail(int socket){
+
+
+  sendMessage(socket, "S");
+
+  char * receiver;
+  char * sub;
+  std::cout << "Please enter the receipient" << std::endl;
+  fgets(receiver, BUF, stdin);
+  std::cout << "Please enter the Subject" << std::endl;
+  fgets(sub, BUF, stdin);
+
+
+}
 /*
-void sendMail();
 void listMails();
 void readMail();
 void deleteMail();

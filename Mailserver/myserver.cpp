@@ -108,6 +108,8 @@ int main (int argc, char **argv) {
             std::string pathPartOne(mailpath);
             std::string pathpartTwo(buffer);
             std::string path = pathPartOne + "/" + pathpartTwo;
+            std::cout<< "PATH: " << path;
+            mkdir(pathPartOne.c_str(), 0777);
            if(mkdir(path.c_str(), 0777) == -1){
              std::cerr << "Error :  " << strerror(errno) << std::endl;
            }
