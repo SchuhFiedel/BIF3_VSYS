@@ -22,7 +22,7 @@
 using namespace std;
 
 
-
+char * receiveMsg(int new_socket);
 
 int main (int argc, char **argv) {
   int create_socket, new_socket;
@@ -30,6 +30,7 @@ int main (int argc, char **argv) {
   char buffer[BUF];   //string with 1024 characters
   int size;
   struct sockaddr_in address, cliaddress; //makes two structs with adress, port and adress_family (AF_INET)
+  int setup = 0;
 
   if( argc < 2 ){
      printf("Usage: %s PortNumber MailFolder (PATH)\n", argv[0]);
@@ -71,10 +72,28 @@ int main (int argc, char **argv) {
         send(new_socket, buffer, strlen(buffer),0);
      }
      do {
-        size = recv (new_socket, buffer, BUF-1, 0);
+      
+       size = recv (new_socket, buffer, BUF-1, 0);
         if( size > 0)
         {
+
            buffer[size] = '\0';
+           if(setup == 0){
+             //Create Direcotry with buffer name -- later uSERNAME
+             std::string pathPartOne(mailpath);
+             std::string pathpartTwo(buffer);
+             std::string path = pathPartOne + "/" + pathpartTwo;
+             std::cout<< "PATH: " << path;
+             mkdir(pathPartOne.c_str(), 0777);
+             if(mkdir(path.c_str(), 0777) == -1){
+              std::cerr << "Error :  " << strerror(errno) << std::endl;
+              }
+            else{
+              std::cout << "Directory "<< buffer <<" created";
+            }
+            setup = 1;
+
+           }
 
 //Defining Stuff that has to be checked
            char SEND = 'S';
@@ -104,18 +123,6 @@ int main (int argc, char **argv) {
            printf ("Message received: %s\n", buffer);
 
 
-//Create Direcotry with buffer name -- later uSERNAME
-            std::string pathPartOne(mailpath);
-            std::string pathpartTwo(buffer);
-            std::string path = pathPartOne + "/" + pathpartTwo;
-            std::cout<< "PATH: " << path;
-            mkdir(pathPartOne.c_str(), 0777);
-           if(mkdir(path.c_str(), 0777) == -1){
-             std::cerr << "Error :  " << strerror(errno) << std::endl;
-           }
-           else{
-             std::cout << "Directory "<< buffer <<" created";
-           }
 
 
         }
@@ -134,4 +141,18 @@ int main (int argc, char **argv) {
   }
   close (create_socket);
   return EXIT_SUCCESS;
+}
+
+char * receiveMsg(int new_socket){
+
+  char buffer[BUF];   //string with 1024 characters
+  int size;
+  size = recv (new_socket, buffer, BUF-1, 0);
+
+   buffer[size] = '\0';
+
+  std::cout<<"THIS MESSAGE WAS IN THE receive function: "<<buffer<<std::endl;
+  return buffer;
+
+
 }
