@@ -9,6 +9,7 @@
 #include <string.h>
 #include <iostream>
 #include <cstring>
+#include <iomanip>
 #define BUF 1024
 #define PORT 6543
 
@@ -116,11 +117,13 @@ void menu(char * buffer, int socket){
       case 1:
           system("clear");
           std::cout << "SEND" << std::endl;
+          sendMessage(socket, "S"); // wichtig ned löschen
           sendMail(socket);
         break;
       case 2:
           system("clear");
           std::cout << "LIST" << std::endl;
+          sendMessage(socket, "L");
           listMails(socket);
         break;
       case 3:
@@ -147,27 +150,27 @@ void menu(char * buffer, int socket){
 }
 
 void sendMail(int socket){
-
-
-  sendMessage(socket, "S"); // wichtig ned löschen
-
-  char  receiver [8];
-  char  sub [8];
-  char  msg [BUF-85];
+  int boop = 8;
+  std::string  receiver;
+  std::string  sub;
+  std::string  msg;
   std::cout << "Please enter the Receipient" << std::endl;
-  fgets(receiver, 80, stdin);
+  std::getline (std::cin,receiver);
+  receiver = receiver.substr(0,7);
+
   std::cout << "Please enter the Subject" << std::endl;
-  fgets(sub, 80, stdin);
+
+  std::getline (std::cin,sub);
+  sub = sub.substr(0,7);
+  //strtok(sub, "\n"); //REMOVE NEW LINE when it is a char*
+
   std::cout << "Please enter the Message" << std::endl;
-  fgets(msg, BUF, stdin);
-  std::string s_receiver(receiver);
-  std::string s_sub(sub);
-  std::string s_msg(msg);
+  std::getline (std::cin,msg);
+  msg = msg.substr(0,900);
 
+  std::string message = global_username + "<stop>" + receiver + "<stop>" + sub + "<stop>" + msg + "<stop>";
 
-
-  std::string message = "<sender>" + global_username + "</sender>\n" +"<empfänger>" + s_receiver + "</empfänger>\n"+ "<subject>" + s_sub + "</subject>\n"+"<text>" + msg + "</text>\n";
-  //std::cout<<message;
+  //cnvert string to char* for sending
   int message_length = message.length();
   char char_Message[message_length];
   strcpy(char_Message, message.c_str());
@@ -175,13 +178,11 @@ void sendMail(int socket){
 }
 
 void listMails(int socket){
-  sendMessage(socket, "L");
+
   char username[8];
   strcpy(username, global_username.c_str());
 
   sendMessage(socket, username);
-
-
 }
 /*void readMail();
 void deleteMail();

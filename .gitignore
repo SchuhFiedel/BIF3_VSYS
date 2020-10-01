@@ -1,2 +1,3 @@
 *.o
-MailFolder
+MailFolder/
+mails/
