@@ -175,6 +175,7 @@ void sendMail(int socket){
   char char_Message[message_length];
   strcpy(char_Message, message.c_str());
   sendMessage(socket, char_Message);
+          system("clear");
 }
 
 void listMails(int socket){

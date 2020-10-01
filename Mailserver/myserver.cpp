@@ -89,7 +89,7 @@ int main (int argc, char **argv)
                     std::string pathPartOne(mailpath);
                     std::string pathpartTwo(buffer);
                     std::string path = pathPartOne + "/" + pathpartTwo;
-                    user_path = path;
+                    user_path = pathPartOne;
                     //std::cout<< "PATH: " << path;
 
                     mkdir(pathPartOne.c_str(), 0777);
@@ -207,18 +207,28 @@ char * receiveMsg(int new_socket){
 
     }
 
-    std::cout << std::endl << "MESSAGE:" <<  receivedMessage << std::endl;
 
-    std::cout << sender << std::endl;
-    std::cout << receiver << std::endl;
-    std::cout << subject << std::endl;
-    std::cout << message_to_save << std::endl;
+//    std::cout << std::endl << "MESSAGE:" <<  receivedMessage << std::endl;
 
-    //fstream filept;
-    //std::string msg_path = user_path + "/s";
-    //filept.open( msg_path ,ios::out);
-    //filept<<buffer;
-    //filept.close();
-    //return buffer;
+  //  std::cout << sender << std::endl;
+
+//    std::cout << receiver << std::endl;
+
+  //  std::cout << subject << std::endl;
+
+
+  //  std::cout << message_to_save << std::endl;
+
+
+    fstream filept;
+
+    std::string msg_path = user_path+"/" + receiver +"/" +subject;
+    std::cout<<"SAve message to"<<msg_path<<std::endl;
+
+    filept.open( msg_path ,ios::out);
+    filept<<"Sender: "<<sender<<"\nSubject: "<<subject<<"\n" <<message_to_save;
+
+    filept.close();
+    return buffer;
 
 }
