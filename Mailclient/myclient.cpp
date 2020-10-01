@@ -149,11 +149,11 @@ void menu(char * buffer, int socket){
 void sendMail(int socket){
 
 
-  sendMessage(socket, "S");
+  sendMessage(socket, "S"); // wichtig ned löschen
 
-  char  receiver [80];
-  char  sub [80];
-  char  msg [BUF-85-85];
+  char  receiver [8];
+  char  sub [8];
+  char  msg [BUF-85];
   std::cout << "Please enter the Receipient" << std::endl;
   fgets(receiver, 80, stdin);
   std::cout << "Please enter the Subject" << std::endl;
@@ -164,12 +164,14 @@ void sendMail(int socket){
   std::string s_sub(sub);
   std::string s_msg(msg);
 
-  sendMessage(socket, receiver);
-  sendMessage(socket, sub);
 
-  std::string message = "<sender>" + global_username + "<sender>\n" +"<empfänger>" + s_receiver + "<empfänger>\n"+ "<subject>" + s_sub + "<subject>\n"+"<text>" + msg + "<text>\n";
-  std::cout<<message;
 
+  std::string message = "<sender>" + global_username + "</sender>\n" +"<empfänger>" + s_receiver + "</empfänger>\n"+ "<subject>" + s_sub + "</subject>\n"+"<text>" + msg + "</text>\n";
+  //std::cout<<message;
+  int message_length = message.length();
+  char char_Message[message_length];
+  strcpy(char_Message, message.c_str());
+  sendMessage(socket, char_Message);
 }
 
 void listMails(int socket){

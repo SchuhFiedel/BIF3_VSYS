@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <fstream>
+
 
 
 
@@ -21,6 +23,7 @@
 
 using namespace std;
 
+std::string user_path;
 
 char * receiveMsg(int new_socket);
 
@@ -32,7 +35,7 @@ int main (int argc, char **argv) {
   struct sockaddr_in address, cliaddress; //makes two structs with adress, port and adress_family (AF_INET)
   int setup = 0;
 
-  if( argc < 2 ){
+  if( argc < 3 ){
      printf("Usage: %s PortNumber MailFolder (PATH)\n", argv[0]);
      exit(EXIT_FAILURE);
   }
@@ -72,7 +75,7 @@ int main (int argc, char **argv) {
         send(new_socket, buffer, strlen(buffer),0);
      }
      do {
-      
+
        size = recv (new_socket, buffer, BUF-1, 0);
         if( size > 0)
         {
@@ -83,6 +86,7 @@ int main (int argc, char **argv) {
              std::string pathPartOne(mailpath);
              std::string pathpartTwo(buffer);
              std::string path = pathPartOne + "/" + pathpartTwo;
+             user_path = path;
              std::cout<< "PATH: " << path;
              mkdir(pathPartOne.c_str(), 0777);
              if(mkdir(path.c_str(), 0777) == -1){
@@ -104,6 +108,7 @@ int main (int argc, char **argv) {
            if(buffer[0] == SEND)
            {
                 std::cout<<"Send received";
+                receiveMsg(new_socket);
            }else if(buffer[0] == LIST)
            {
                 std::cout<<"LIST received";
@@ -115,6 +120,7 @@ int main (int argc, char **argv) {
                 std::cout<<"DEL received";
            }else if(buffer[0] == QUIT)
            {
+                setup = 0;
                 close (new_socket);
                 end = true;
            }
@@ -152,6 +158,14 @@ char * receiveMsg(int new_socket){
    buffer[size] = '\0';
 
   std::cout<<"THIS MESSAGE WAS IN THE receive function: "<<buffer<<std::endl;
+  fstream filept;
+  std::string msg_path = user_path + "/asb";
+
+
+
+  filept.open( msg_path ,ios::out);
+  filept<<buffer;
+  filept.close();
   return buffer;
 
 
