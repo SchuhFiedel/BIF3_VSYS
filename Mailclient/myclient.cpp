@@ -18,9 +18,10 @@ void sendMessage(int socket, char * buffer);
 void printMenu();
 void menu(char * buffer, int socket);
 
+
 void sendMail(int socket);
 void listMails(int socket);
-void readMail();
+void readMail(int socket);
 void deleteMail();
 void logout();
 
@@ -134,7 +135,7 @@ void menu(char * buffer, int socket){
       case 4:
           system("clear");
           std::cout << "DEL" << std::endl;
-          //deleteMail();
+          deleteMail();
         break;
       case 5:
           std::cout << "QUIT" << std::endl;
@@ -159,7 +160,6 @@ void sendMail(int socket){
   receiver = receiver.substr(0,7);
 
   std::cout << "Please enter the Subject" << std::endl;
-
   std::getline (std::cin,sub);
   sub = sub.substr(0,7);
   //strtok(sub, "\n"); //REMOVE NEW LINE when it is a char*
@@ -189,13 +189,29 @@ void sendMail(int socket){
 }
 
 void listMails(int socket){
+  char buffer[BUF];   //string with 1024 characters
+  int size;
 
-  char username[8];
-  strcpy(username, global_username.c_str());
+  while(!strncmp(buffer, "Term")){
 
-  sendMessage(socket, username);
+    size = recv (new_socket, buffer, BUF-1, 0);
+
+
+
+
+  }
 }
-/*void readMail();
-void deleteMail();
-void logout();
-*/
+//void readMail();
+void deleteMail(int socket){
+  std::string  mail;
+  std::cout << "Please enter the whick mail to delete" << std::endl;
+  std::getline (std::cin,mail);
+  mail = receiver.substr(0,7);
+  strcpy(char_Message, mail.c_str());
+  sendMessage(socket, char_Message);
+
+  std::cout<<"This is server answer: "<< answer<< std::endl<<std::endl;
+
+
+}
+//void logout();

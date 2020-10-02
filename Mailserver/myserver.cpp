@@ -24,8 +24,11 @@
 using namespace std;
 
 std::string user_path;
+std::string mail_path;
+std::string user_mail_path;
 
 void receiveMsg(int new_socket);
+void deleteMail(int new_socket);
 
 int main (int argc, char **argv)
 {
@@ -89,7 +92,9 @@ int main (int argc, char **argv)
                     std::string pathPartOne(mailpath);
                     std::string pathpartTwo(buffer);
                     std::string path = pathPartOne + "/" + pathpartTwo;
-                    user_path = pathPartOne;
+                    mail_path = pathPartOne;
+                    user = pathpartTwo
+                    user_mail_path = path
                     //std::cout<< "PATH: " << path;
 
                     mkdir(pathPartOne.c_str(), 0777);
@@ -130,6 +135,7 @@ int main (int argc, char **argv)
                 else if(buffer[0] == DEL)
                 {
                     std::cout<<"DEL received";
+                    deleteMail(new_socket)
                 }
                 else if(buffer[0] == QUIT)
                 {
@@ -209,22 +215,18 @@ void receiveMsg(int new_socket){
 
 
 //    std::cout << std::endl << "MESSAGE:" <<  receivedMessage << std::endl;
-
   //  std::cout << sender << std::endl;
-
 //    std::cout << receiver << std::endl;
-
   //  std::cout << subject << std::endl;
-
-
   //  std::cout << message_to_save << std::endl;
 
 
     fstream filept;
     char  reply [4]; //reply to the client
 
+
     std::string msg_path = user_path+"/" + receiver +"/" +subject;
-    std::cout<<"SAve message to"<<msg_path<<std::endl;
+    //std::cout<<"Save message to"<<msg_path<<std::endl;//DEBUGSTUFF
 
     filept.open( msg_path ,ios::out);
     if(filept.is_open()){
@@ -238,5 +240,17 @@ void receiveMsg(int new_socket){
     }
 
     send(new_socket, reply, strlen (reply), 0);
+
+}
+
+void deleteMail(int new_socket){
+
+  char buffer[BUF];   //string with 1024 characters
+  int size;
+  size = recv (new_socket, buffer, BUF-1, 0);
+  buffer[size] = '\0';
+  std::cout<<"This is in the buffer: "<<buffer<<std::endl;
+
+
 
 }
