@@ -175,7 +175,17 @@ void sendMail(int socket){
   char char_Message[message_length];
   strcpy(char_Message, message.c_str());
   sendMessage(socket, char_Message);
-          system("clear");
+  //system("clear");
+
+
+  int size;
+  char answer [BUF];
+  size = recv (socket, answer, BUF-1, 0);
+  std::cout<<"This is server answer: "<< answer<< std::endl<<std::endl;
+
+
+
+
 }
 
 void listMails(int socket){

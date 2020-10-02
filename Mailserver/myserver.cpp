@@ -25,7 +25,7 @@ using namespace std;
 
 std::string user_path;
 
-char * receiveMsg(int new_socket);
+void receiveMsg(int new_socket);
 
 int main (int argc, char **argv)
 {
@@ -160,7 +160,7 @@ int main (int argc, char **argv)
     return EXIT_SUCCESS;
 }
 
-char * receiveMsg(int new_socket){
+void receiveMsg(int new_socket){
 
     char buffer[BUF];   //string with 1024 characters
     int size;
@@ -221,14 +221,22 @@ char * receiveMsg(int new_socket){
 
 
     fstream filept;
+    char  reply [4]; //reply to the client
 
     std::string msg_path = user_path+"/" + receiver +"/" +subject;
     std::cout<<"SAve message to"<<msg_path<<std::endl;
 
     filept.open( msg_path ,ios::out);
+    if(filept.is_open()){
     filept<<"Sender: "<<sender<<"\nSubject: "<<subject<<"\n" <<message_to_save;
+     strncpy (reply, "okk", sizeof(reply));
 
     filept.close();
-    return buffer;
+    }else{
+      std::cout<<"File could not be created"<<std::endl;
+     strncpy (reply, "err", sizeof(reply));
+    }
+
+    send(new_socket, reply, strlen (reply), 0);
 
 }
