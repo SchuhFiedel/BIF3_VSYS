@@ -23,12 +23,13 @@
 
 using namespace std;
 
-std::string user_path;
+std::string user;
 std::string mail_path;
 std::string user_mail_path;
 
 void receiveMsg(int new_socket);
 void deleteMail(int new_socket);
+void readmsg(int new_socket);
 
 int main (int argc, char **argv)
 {
@@ -93,8 +94,8 @@ int main (int argc, char **argv)
                     std::string pathpartTwo(buffer);
                     std::string path = pathPartOne + "/" + pathpartTwo;
                     mail_path = pathPartOne;
-                    user = pathpartTwo
-                    user_mail_path = path
+                    user = pathpartTwo;
+                    user_mail_path = path;
                     //std::cout<< "PATH: " << path;
 
                     mkdir(pathPartOne.c_str(), 0777);
@@ -131,11 +132,12 @@ int main (int argc, char **argv)
                 else if(buffer[0] == READ)
                 {
                     std::cout<<"READ received";
+                    readmsg(new_socket);
                 }
                 else if(buffer[0] == DEL)
                 {
                     std::cout<<"DEL received";
-                    deleteMail(new_socket)
+                    deleteMail(new_socket);
                 }
                 else if(buffer[0] == QUIT)
                 {
@@ -225,7 +227,7 @@ void receiveMsg(int new_socket){
     char  reply [4]; //reply to the client
 
 
-    std::string msg_path = user_path+"/" + receiver +"/" +subject;
+    std::string msg_path = mail_path+"/" + receiver +"/" +subject;
     //std::cout<<"Save message to"<<msg_path<<std::endl;//DEBUGSTUFF
 
     filept.open( msg_path ,ios::out);
@@ -244,12 +246,70 @@ void receiveMsg(int new_socket){
 }
 
 void deleteMail(int new_socket){
-
+//receives which mail to delete
   char buffer[BUF];   //string with 1024 characters
   int size;
   size = recv (new_socket, buffer, BUF-1, 0);
   buffer[size] = '\0';
-  std::cout<<"This is in the buffer: "<<buffer<<std::endl;
+  std::string file_to_delete = user_mail_path + "/" +buffer;
+  int file_to_delete_length = file_to_delete.length();
+  char c_file_to_delete [file_to_delete_length+1];
+  strcpy(c_file_to_delete, file_to_delete.c_str());
+
+
+    char  reply [4];
+  if(remove(c_file_to_delete) != 0 )
+    strncpy (reply, "err", sizeof(reply));
+  else
+    strncpy (reply, "okk", sizeof(reply));
+
+
+  send(new_socket, reply, strlen (reply), 0);
+
+}
+
+
+void readmsg(int new_socket){
+//receives which mail to open
+  ifstream inFile;
+  char  reply [4];
+  char buffer[BUF];   //string with 1024 characters
+  int size;
+
+  size = recv (new_socket, buffer, BUF-1, 0);
+  buffer[size] = '\0';
+  std::string file_to_read = user_mail_path + "/" +buffer;
+
+  int file_to_read_length = file_to_read.length();
+
+  char c_file_to_read [file_to_read_length+1];
+
+  strcpy(c_file_to_read, file_to_read.c_str());
+
+  std::string content, line;
+
+  inFile.open(c_file_to_read);
+  if(!inFile){
+    strncpy (buffer, "err", sizeof(buffer));
+  }else{
+    while(inFile>>line)
+    {
+      content = content +"\n"+ line;
+    }
+
+  }
+  int content_length = content.length();
+
+  char c_content[content_length];
+
+  strcpy(c_content, content.c_str());
+
+  strncpy(buffer,  c_content, sizeof(buffer));
+  send(new_socket, buffer, strlen (buffer), 0);
+
+
+
+
 
 
 

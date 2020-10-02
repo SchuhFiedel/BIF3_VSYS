@@ -22,7 +22,7 @@ void menu(char * buffer, int socket);
 void sendMail(int socket);
 void listMails(int socket);
 void readMail(int socket);
-void deleteMail();
+void deleteMail(int socket);
 void logout();
 
 std::string global_username;
@@ -130,12 +130,14 @@ void menu(char * buffer, int socket){
       case 3:
           system("clear");
           std::cout << "READ" << std::endl;
-          //readMail();
+          sendMessage(socket, "R");
+          readMail( socket);
         break;
       case 4:
           system("clear");
           std::cout << "DEL" << std::endl;
-          deleteMail();
+          sendMessage(socket, "D");
+          deleteMail(socket);
         break;
       case 5:
           std::cout << "QUIT" << std::endl;
@@ -149,6 +151,8 @@ void menu(char * buffer, int socket){
         break;
     }
 }
+
+
 
 void sendMail(int socket){
   int boop = 8;
@@ -189,27 +193,57 @@ void sendMail(int socket){
 }
 
 void listMails(int socket){
-  char buffer[BUF];   //string with 1024 characters
+/*  char buffer[BUF];   //string with 1024 characters
   int size;
 
   while(!strncmp(buffer, "Term")){
 
     size = recv (new_socket, buffer, BUF-1, 0);
+*/
 
 
 
 
-  }
 }
-//void readMail();
-void deleteMail(int socket){
+void readMail(int socket){
   std::string  mail;
-  std::cout << "Please enter the whick mail to delete" << std::endl;
+  std::cout << "Please enter the which mail to read" << std::endl;
   std::getline (std::cin,mail);
-  mail = receiver.substr(0,7);
+  mail = mail.substr(0,7);
+
+
+  int message_length = mail.length();
+  char char_Message[message_length];
   strcpy(char_Message, mail.c_str());
   sendMessage(socket, char_Message);
 
+
+  int size;
+  char answer [BUF];
+  size = recv (socket, answer, BUF-1, 0);
+  std::cout<<"This is server answer: "<< answer<< std::endl<<std::endl;
+
+
+
+
+}
+void deleteMail(int socket){
+
+  std::string  mail;
+  std::cout << "Please enter the which mail to read" << std::endl;
+  std::getline (std::cin,mail);
+  mail = mail.substr(0,7);
+
+
+  int message_length = mail.length();
+  char char_Message[message_length];
+  strcpy(char_Message, mail.c_str());
+  sendMessage(socket, char_Message);
+
+
+  int size;
+  char answer [BUF];
+  size = recv (socket, answer, BUF-1, 0);
   std::cout<<"This is server answer: "<< answer<< std::endl<<std::endl;
 
 
