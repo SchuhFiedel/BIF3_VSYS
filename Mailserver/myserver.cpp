@@ -1,5 +1,5 @@
 /* myserver.cpp */
-#include <iostream>
+
 #include <bits/stdc++.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -12,10 +12,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
 
 #include <fstream>
+#include <sstream>
 
-
+#include <dirent.h>
 
 
 #define BUF 1024
@@ -23,13 +25,14 @@
 
 using namespace std;
 
-std::string user;
-std::string mail_path;
-std::string user_mail_path;
+std::string user = "";
+std::string mail_path = "";
+std::string user_mail_path = "";
 
 void receiveMsg(int new_socket);
 void deleteMail(int new_socket);
 void readmsg(int new_socket);
+void listmsg(int new_socket);
 
 int main (int argc, char **argv)
 {
@@ -84,19 +87,28 @@ int main (int argc, char **argv)
         }
         do
         {
+            cout << "AAA" << endl;
             size = recv (new_socket, buffer, BUF-1, 0);
             if( size > 0)
             {
+                cout << "BBB" << endl;
                 buffer[size] = '\0';
                 if(setup == 0){
+                  cout << "CCC" << endl;
 //Create Direcotry with buffer name -- later uSERNAME
                     std::string pathPartOne(mailpath);
+                    std::cout<< "pathpartOne: " << pathPartOne << endl;
                     std::string pathpartTwo(buffer);
+                    std::cout<< "pathpartTwo: " << pathpartTwo << endl;
                     std::string path = pathPartOne + "/" + pathpartTwo;
+                    std::cout<< "PATH: " << path << endl;
                     mail_path = pathPartOne;
+                    std::cout<< "mail_path: " << mail_path << endl;
                     user = pathpartTwo;
+                    std::cout << "User: "<< user << endl;
                     user_mail_path = path;
-                    //std::cout<< "PATH: " << path;
+                    std::cout<< "user_mail_path: " << user_mail_path << endl;
+
 
                     mkdir(pathPartOne.c_str(), 0777);
 
@@ -128,6 +140,7 @@ int main (int argc, char **argv)
                 else if(buffer[0] == LIST)
                 {
                     std::cout<<"LIST received";
+                    listmsg(new_socket);
                 }
                 else if(buffer[0] == READ)
                 {
@@ -144,6 +157,9 @@ int main (int argc, char **argv)
                     setup = 0;
                     close (new_socket);
                     end = true;
+                    user = "";
+                    mail_path = "";
+                    user_mail_path = "";
                 }
 
 
@@ -152,25 +168,47 @@ int main (int argc, char **argv)
             }
             else if (size == 0)
             {
+                setup = 0;
                 printf("Client closed remote socket\n");
+                close (new_socket);
+                //close (create_socket);
+                user = "";
+                mail_path = "";
+                user_mail_path = "";
                 break;
             }
             else
             {
+                setup = 0;
                 perror("recv error");
+                user = "";
+                mail_path = "";
+                user_mail_path = "";
                 return EXIT_FAILURE;
             }
         }
-        while (strncmp (buffer, "quit", 4)  != 0);
+        while (strncmp (buffer, "Q", 1)  != 0);
         close (new_socket);
+        setup = 0;
+        //close (create_socket);
+        user = "";
+        mail_path = "";
+        user_mail_path = "";
     }
     close (create_socket);
+    setup = 0;
+    user = "";
+    mail_path = "";
+    user_mail_path = "";
     return EXIT_SUCCESS;
 }
 
+
+
+
 void receiveMsg(int new_socket){
 
-    char buffer[BUF];   //string with 1024 characters
+    char buffer[BUF]= "";   //string with 1024 characters
     int size;
     size = recv (new_socket, buffer, BUF-1, 0);
 
@@ -178,7 +216,7 @@ void receiveMsg(int new_socket){
 
     //std::cout<<"THIS MESSAGE WAS IN THE receive function: "<<buffer<<std::endl;
 
-//cut string into several strings
+    //cut string into several strings
     std::string receivedMessage(buffer);
     std::string delimiter = "<stop>";
     std::string sender;
@@ -216,11 +254,11 @@ void receiveMsg(int new_socket){
     }
 
 
-//    std::cout << std::endl << "MESSAGE:" <<  receivedMessage << std::endl;
-  //  std::cout << sender << std::endl;
-//    std::cout << receiver << std::endl;
-  //  std::cout << subject << std::endl;
-  //  std::cout << message_to_save << std::endl;
+      //    std::cout << std::endl << "MESSAGE:" <<  receivedMessage << std::endl;
+        //  std::cout << sender << std::endl;
+      //    std::cout << receiver << std::endl;
+        //  std::cout << subject << std::endl;
+        //  std::cout << message_to_save << std::endl;
 
 
     fstream filept;
@@ -228,7 +266,7 @@ void receiveMsg(int new_socket){
 
 
     std::string msg_path = mail_path+"/" + receiver +"/" +subject;
-    //std::cout<<"Save message to"<<msg_path<<std::endl;//DEBUGSTUFF
+    std::cout<<"Save message to"<<msg_path<<std::endl;//DEBUGSTUFF
 
     filept.open( msg_path ,ios::out);
     if(filept.is_open()){
@@ -246,8 +284,8 @@ void receiveMsg(int new_socket){
 }
 
 void deleteMail(int new_socket){
-//receives which mail to delete
-  char buffer[BUF];   //string with 1024 characters
+  //receives which mail to delete
+  char buffer[BUF] = "";    //string with 1024 characters
   int size;
   size = recv (new_socket, buffer, BUF-1, 0);
   buffer[size] = '\0';
@@ -257,7 +295,7 @@ void deleteMail(int new_socket){
   strcpy(c_file_to_delete, file_to_delete.c_str());
 
 
-    char  reply [4];
+  char  reply [4];
   if(remove(c_file_to_delete) != 0 )
     strncpy (reply, "err", sizeof(reply));
   else
@@ -270,47 +308,74 @@ void deleteMail(int new_socket){
 
 
 void readmsg(int new_socket){
-//receives which mail to open
-  ifstream inFile;
+  //receives which mail to open
   char  reply [4];
-  char buffer[BUF];   //string with 1024 characters
+  char buffer[BUF] = "";   //string with 1024 characters
   int size;
 
   size = recv (new_socket, buffer, BUF-1, 0);
   buffer[size] = '\0';
+
   std::string file_to_read = user_mail_path + "/" +buffer;
 
+  //make file_to_read to c_string
   int file_to_read_length = file_to_read.length();
-
   char c_file_to_read [file_to_read_length+1];
-
   strcpy(c_file_to_read, file_to_read.c_str());
 
-  std::string content, line;
 
-  inFile.open(c_file_to_read);
-  if(!inFile){
-    strncpy (buffer, "err", sizeof(buffer));
-  }else{
-    while(inFile>>line)
-    {
-      content = content +"\n"+ line;
-    }
-
+  ifstream f(c_file_to_read); //taking file as inputstream
+  string str;
+  if(f) {
+     ostringstream ss;
+     ss << f.rdbuf(); // reading data
+     str = ss.str();
   }
-  int content_length = content.length();
+  cout<<str;
 
-  char c_content[content_length];
+  int str_length = str.length();
 
-  strcpy(c_content, content.c_str());
+  char c_str[str_length];
 
-  strncpy(buffer,  c_content, sizeof(buffer));
+  strcpy(c_str, str.c_str());
+
+  strncpy(buffer,  c_str, sizeof(buffer));
   send(new_socket, buffer, strlen (buffer), 0);
 
+}
 
+void listmsg(int new_socket){
+  char buffer[BUF] = "";
+  //read stuff out of file
+  //char  reply [4];
 
+  //std::string file_to_read = user_mail_path;
+  std::string all_entries = "";
+  std::cout << "User: "<< user << endl;
 
+  struct dirent * entry = nullptr;
+  DIR * dp = nullptr;
 
+  dp = opendir(user_mail_path.c_str());
+  if(dp != nullptr){
+    while (entry = readdir(dp)){
+      std::string s(entry->d_name);
+      if(s != ".." && s != "."){
+        all_entries +=  s + "\n";
+      }
+    }
+  }
+  if(all_entries.length()>0){
+    std:cout << all_entries;
+  }
+  else{
+    all_entries = "No mails found in your Inbox!";
+  }
 
+  int all_entries_length = all_entries.length();
+  char c_all_entries[all_entries_length];
+  strcpy(c_all_entries, all_entries.c_str());
 
+  strncpy(buffer,  c_all_entries, sizeof(buffer));
+  send(new_socket, buffer, strlen (buffer), 0);
 }

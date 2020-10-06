@@ -128,14 +128,18 @@ void menu(char * buffer, int socket){
           listMails(socket);
         break;
       case 3:
-          system("clear");
           std::cout << "READ" << std::endl;
+          std::cout << "Your Inbox: " << std::endl << std::endl;
+          sendMessage(socket, "L");
+          listMails(socket);
           sendMessage(socket, "R");
           readMail( socket);
         break;
       case 4:
           system("clear");
           std::cout << "DEL" << std::endl;
+          sendMessage(socket, "L");
+          listMails(socket);
           sendMessage(socket, "D");
           deleteMail(socket);
         break;
@@ -155,18 +159,28 @@ void menu(char * buffer, int socket){
 
 
 void sendMail(int socket){
-  int boop = 8;
-  std::string  receiver;
-  std::string  sub;
-  std::string  msg;
-  std::cout << "Please enter the Receipient" << std::endl;
-  std::getline (std::cin,receiver);
-  receiver = receiver.substr(0,7);
+  //int boop = 8;
+  std::string  receiver = "";
+  std::string  sub = "";
+  std::string  msg = "";
 
-  std::cout << "Please enter the Subject" << std::endl;
-  std::getline (std::cin,sub);
-  sub = sub.substr(0,7);
-  //strtok(sub, "\n"); //REMOVE NEW LINE when it is a char*
+  while(receiver == "" || receiver == global_username || receiver.length() > 8){
+    std::cout << "Please enter the Receipient" << std::endl;
+    std::getline (std::cin,receiver);
+    receiver = receiver.substr(0,7);
+    if(receiver == global_username){
+      std::cout << "You can not send messages to yourself sorry!" << std::endl<< std::endl;
+    }
+  }
+
+  while(sub == "" || sub.length() > 8){
+    std::cout << "Please enter the Subject" << std::endl;
+    std::getline (std::cin,sub);
+    sub = sub.substr(0,7);
+    if(sub.length() >8){
+      std::cout << "only 8 digits long please!" << std::endl << std::endl;
+    }
+  }
 
   std::cout << "Please enter the Message" << std::endl;
   std::getline (std::cin,msg);
@@ -188,29 +202,31 @@ void sendMail(int socket){
   std::cout<<"This is server answer: "<< answer<< std::endl<<std::endl;
 
 
-
-
 }
 
-void listMails(int socket){
-/*  char buffer[BUF];   //string with 1024 characters
+void listMails(int new_socket){
+  char buffer[BUF] = "";   //string with 1024 characters
   int size;
 
-  while(!strncmp(buffer, "Term")){
-
-    size = recv (new_socket, buffer, BUF-1, 0);
-*/
-
-
-
+  size = recv (new_socket, buffer, BUF-1, 0);
+  std::cout<<"This is server answer: "<< std::endl<<std::endl<< buffer << std::endl<<std::endl;
 
 }
-void readMail(int socket){
-  std::string  mail;
-  std::cout << "Please enter the which mail to read" << std::endl;
-  std::getline (std::cin,mail);
-  mail = mail.substr(0,7);
 
+
+void readMail(int socket){
+  std::string mail = "";
+  while(mail==""|| mail.length() > 8){
+    std::cout << "Please enter which mail to read" << std::endl;
+    std::getline (std::cin,mail);
+    mail = mail.substr(0,7);
+    if(mail==""){
+      std::cout << "plase enter the subject of the mail you want to read!" << std::endl << std::endl;
+    }
+    if(mail.length() > 8){
+      std::cout << "The subject can only be 8 chars long!" << std::endl << std::endl;
+    }
+  }
 
   int message_length = mail.length();
   char char_Message[message_length];
@@ -221,18 +237,26 @@ void readMail(int socket){
   int size;
   char answer [BUF];
   size = recv (socket, answer, BUF-1, 0);
-  std::cout<<"This is server answer: "<< answer<< std::endl<<std::endl;
-
-
-
+  std::cout<<"This is server answer: "<< std::endl<<std::endl<< answer << std::endl<<std::endl;
 
 }
+
+
+
 void deleteMail(int socket){
 
-  std::string  mail;
-  std::cout << "Please enter the which mail to read" << std::endl;
-  std::getline (std::cin,mail);
-  mail = mail.substr(0,7);
+  std::string mail = "";
+  while(mail==""|| mail.length() > 8){
+    std::cout << "Please enter which mail to delete" << std::endl;
+    std::getline (std::cin,mail);
+    mail = mail.substr(0,7);
+    if(mail==""){
+      std::cout << "plase enter the subject of the mail you want to read!" << std::endl << std::endl;
+    }
+    if(mail.length() > 8){
+      std::cout << "The subject can only be 8 chars long!" << std::endl << std::endl;
+    }
+  }
 
 
   int message_length = mail.length();
