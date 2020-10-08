@@ -1,4 +1,4 @@
-main: server client
+all: server client
 	@echo "boopie!"
 
 
@@ -9,3 +9,7 @@ server: Mailserver/myserver.cpp
 client: Mailclient/myclient.cpp
 	@echo "Making Client Vsys1 - myclient.c binary!"
 	g++  Mailclient/myclient.cpp -o Mailclient/myclient.o
+
+clean:
+	rm Mailclient/*.o 
+	rm Mailserver/*.o
