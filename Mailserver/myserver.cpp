@@ -70,9 +70,7 @@ int main (int argc, char **argv)
     }
 
     listen (create_socket, 5); //Socket to listen to and maximal connection Queue lenght
-
     addrlen = sizeof (struct sockaddr_in);
-
     bool end = false;
 
     while (end == false)
@@ -95,7 +93,7 @@ int main (int argc, char **argv)
                 buffer[size] = '\0';
                 if(setup == 0){
                   cout << "CCC" << endl;
-//Create Direcotry with buffer name -- later uSERNAME
+                  //Create Direcotry with -- later uSERNAME
                     std::string pathPartOne(mailpath);
                     std::cout<< "pathpartOne: " << pathPartOne << endl;
                     std::string pathpartTwo(buffer);
@@ -215,7 +213,6 @@ void receiveMsg(int new_socket){
     buffer[size] = '\0';
 
     //std::cout<<"THIS MESSAGE WAS IN THE receive function: "<<buffer<<std::endl;
-
     //cut string into several strings
     std::string receivedMessage(buffer);
     std::string delimiter = "<stop>";
@@ -254,12 +251,11 @@ void receiveMsg(int new_socket){
     }
 
 
-      //    std::cout << std::endl << "MESSAGE:" <<  receivedMessage << std::endl;
-        //  std::cout << sender << std::endl;
-      //    std::cout << receiver << std::endl;
-        //  std::cout << subject << std::endl;
-        //  std::cout << message_to_save << std::endl;
-
+      //std::cout << std::endl << "MESSAGE:" <<  receivedMessage << std::endl;
+      //std::cout << sender << std::endl;
+      //std::cout << receiver << std::endl;
+      //std::cout << subject << std::endl;
+      //std::cout << message_to_save << std::endl;
 
     fstream filept;
     char  reply [4]; //reply to the client
@@ -289,6 +285,7 @@ void deleteMail(int new_socket){
   int size;
   size = recv (new_socket, buffer, BUF-1, 0);
   buffer[size] = '\0';
+
   std::string file_to_delete = user_mail_path + "/" +buffer;
   int file_to_delete_length = file_to_delete.length();
   char c_file_to_delete [file_to_delete_length+1];
@@ -300,10 +297,8 @@ void deleteMail(int new_socket){
     strncpy (reply, "err", sizeof(reply));
   else
     strncpy (reply, "okk", sizeof(reply));
-
-
+    //SEND REPLY
   send(new_socket, reply, strlen (reply), 0);
-
 }
 
 
@@ -347,8 +342,6 @@ void readmsg(int new_socket){
 void listmsg(int new_socket){
   char buffer[BUF] = "";
   //read stuff out of file
-  //char  reply [4];
-
   //std::string file_to_read = user_mail_path;
   std::string all_entries = "";
   std::cout << "User: "<< user << endl;

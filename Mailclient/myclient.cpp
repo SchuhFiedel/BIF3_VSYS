@@ -37,11 +37,6 @@ int main (int argc, char **argv) {
      printf("Usage: %s ServerAdresse PortNumber Username\n", argv[0]);
      exit(EXIT_FAILURE);
   }
-  /*   DEBUGSTUFF
-  for(int i = 0; i < argc; i++){
-    std::cout << "arv" << i << ": " << argv[i] <<"\n";
-  }
-  */
 
   if ((create_socket = socket (AF_INET, SOCK_STREAM, 0)) == -1)
   {
@@ -61,7 +56,7 @@ int main (int argc, char **argv) {
      printf ("Connection with server (%s) established\n", inet_ntoa (address.sin_addr));
      std::string username(argv[3]);
      global_username = username;
-       sendMessage(create_socket, argv[3]); //send Uername to Server
+     sendMessage(create_socket, argv[3]); //send Uername to Server
 
      size=recv(create_socket,buffer,BUF-1, 0);
      if (size>0)
@@ -128,6 +123,7 @@ void menu(char * buffer, int socket){
           listMails(socket);
         break;
       case 3:
+          system("clear");
           std::cout << "READ" << std::endl;
           std::cout << "Your Inbox: " << std::endl << std::endl;
           sendMessage(socket, "L");
@@ -151,7 +147,7 @@ void menu(char * buffer, int socket){
         break;
       default:
           system("clear");
-          std::cout << "Bäh" << std::endl;
+          std::cout << "Please Enter one of the Numbers above!" << std::endl;
         break;
     }
 }
@@ -177,13 +173,19 @@ void sendMail(int socket){
     std::cout << "Please enter the Subject" << std::endl;
     std::getline (std::cin,sub);
     sub = sub.substr(0,7);
-    if(sub.length() >8){
-      std::cout << "only 8 digits long please!" << std::endl << std::endl;
+    f(sub = ""{
+      std::cout << "The Subject can not be left empty!" << std::endl << std::endl;
     }
   }
 
-  std::cout << "Please enter the Message" << std::endl;
-  std::getline (std::cin,msg);
+  while(msg = ""){
+    std::cout << "Please enter the Message" << std::endl;
+    std::getline (std::cin,msg);
+    if(msg = ""){
+      std::cout << "The Message can not be left empty!" << std::endl << std::endl;
+    }
+  }
+
   msg = msg.substr(0,900);
 
   std::string message = global_username + "<stop>" + receiver + "<stop>" + sub + "<stop>" + msg + "<stop>";
@@ -228,6 +230,7 @@ void readMail(int socket){
     }
   }
 
+  //cnvert string to char* for sending
   int message_length = mail.length();
   char char_Message[message_length];
   strcpy(char_Message, mail.c_str());
@@ -258,18 +261,15 @@ void deleteMail(int socket){
     }
   }
 
-
+  //cnvert string to char* for sending
   int message_length = mail.length();
   char char_Message[message_length];
   strcpy(char_Message, mail.c_str());
   sendMessage(socket, char_Message);
-
 
   int size;
   char answer [BUF];
   size = recv (socket, answer, BUF-1, 0);
   std::cout<<"This is server answer: "<< answer<< std::endl<<std::endl;
 
-
 }
-//void logout();
