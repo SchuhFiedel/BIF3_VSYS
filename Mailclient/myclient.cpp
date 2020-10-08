@@ -173,15 +173,15 @@ void sendMail(int socket){
     std::cout << "Please enter the Subject" << std::endl;
     std::getline (std::cin,sub);
     sub = sub.substr(0,7);
-    f(sub = ""{
+    if(sub == ""){
       std::cout << "The Subject can not be left empty!" << std::endl << std::endl;
     }
   }
 
-  while(msg = ""){
+  while(msg == ""){
     std::cout << "Please enter the Message" << std::endl;
     std::getline (std::cin,msg);
-    if(msg = ""){
+    if(msg == ""){
       std::cout << "The Message can not be left empty!" << std::endl << std::endl;
     }
   }
