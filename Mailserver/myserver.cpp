@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <ostream>
 #include <sstream>
 #include <cstdlib>
 #include <thread>
@@ -21,8 +22,7 @@
 
 #include <dirent.h>
 #include <pthread.h>
-
-
+#include <vector>
 
 #define BUF 1024
 #define PORT 6543
@@ -40,6 +40,7 @@ int connectionLoop(struct sockaddr_in address, int create_socket, char * mailpat
 
 int main (int argc, char **argv)
 {
+    std::vector<std::thread> threads;
     int create_socket;
     struct sockaddr_in address; //makes struct with adress, port and adress_family (AF_INET)
     if( argc < 3 )
@@ -69,18 +70,40 @@ int main (int argc, char **argv)
 //THREAD STUFF
     //pthread_t threads[MAX_CLIENTS];
 
-      std::cout << "Creating a thread!!!! " << std::endl;
-      std::thread th0(std::bind(connectionLoop, address , create_socket, mailpath));
+    while (true)
+    {
+        int new_socket = 0;
+        //int setup = 0;
+        char buffer[BUF];   //string with 1024 characters
+        socklen_t addrlen = sizeof (struct sockaddr_in); //int 32 bit
+        struct sockaddr_in cliaddress;
+        std::cout << "Waiting for Connection on: IP: " << inet_ntoa(address.sin_addr) << " Port: " << htons(address.sin_port) << "\n";
+        new_socket = accept ( create_socket, (struct sockaddr *) &cliaddress, &addrlen );
+        if (new_socket > 0)
+        {
+            printf ("Client connected from %s:%d...\n", inet_ntoa (cliaddress.sin_addr), ntohs(cliaddress.sin_port));
+            strcpy(buffer,"Welcome to myserver, Please enter your command:\n");
+            threads.push_back(std::thread(connectionLoop, address , new_socket, mailpath));
+            std::cout << "Creating a thread!!!! " << std::endl;
+            send(new_socket, buffer, strlen(buffer),0);
+        }
+       //for(auto &th : threads){
+        //  th.join();
+        //}
+      }
+
+      //threads.push_back(std::thread(connectionLoop, address , create_socket, mailpath));
+    /*  std::thread th0(std::bind(connectionLoop, address , create_socket, mailpath));
       std::thread th1(std::bind(connectionLoop, address , create_socket, mailpath));
       std::thread th2(std::bind(connectionLoop, address , create_socket, mailpath));
       std::thread th3(std::bind(connectionLoop, address , create_socket, mailpath));
       std::thread th4(std::bind(connectionLoop, address , create_socket, mailpath));
-      th0.join();
-      th1.join();
-      th2.join();
-      th3.join();
-      th4.join();
-    
+    */
+
+     for(auto &th : threads){
+        th.join();
+      }
+
 
 //END THREAD STUFF
     close (create_socket);
@@ -88,27 +111,27 @@ int main (int argc, char **argv)
 }
 
 //MAIN LOOP HERE
-int connectionLoop(struct sockaddr_in address, int create_socket, char * mailpath){
+int connectionLoop(struct sockaddr_in address, int new_socket, char * mailpath){
   std::string user_mail_path = "";
   std::string user = "";
   bool end = false;
-  int new_socket;
+//  int new_socket;
   int setup = 0;
   int size;
   char buffer[BUF];   //string with 1024 characters
-  socklen_t addrlen = sizeof (struct sockaddr_in); //int 32 bit
-  struct sockaddr_in cliaddress;
+  //socklen_t addrlen = sizeof (struct sockaddr_in); //int 32 bit
+  //struct sockaddr_in cliaddress;
 
-  while (end == false)
-  {
-      std::cout << "Waiting for Connection on: IP: " << inet_ntoa(address.sin_addr) << " Port: " << htons(address.sin_port) << "\n";
+//  while (end == false)
+//  {
+  /*    std::cout << "Waiting for Connection on: IP: " << inet_ntoa(address.sin_addr) << " Port: " << htons(address.sin_port) << "\n";
       new_socket = accept ( create_socket, (struct sockaddr *) &cliaddress, &addrlen );
       if (new_socket > 0)
       {
           printf ("Client connected from %s:%d...\n", inet_ntoa (cliaddress.sin_addr), ntohs(cliaddress.sin_port));
           strcpy(buffer,"Welcome to myserver, Please enter your command:\n");
           send(new_socket, buffer, strlen(buffer),0);
-      }
+      }*/
       do
       {
           cout << "AAA" << endl;
@@ -206,13 +229,13 @@ int connectionLoop(struct sockaddr_in address, int create_socket, char * mailpat
           }
       }
       while (strncmp (buffer, "Q", 1)  != 0);
-      close (new_socket);
-      setup = 0;
+      //close (new_socket);
+      //setup = 0;
       //close (create_socket);
-      user = "";
-      mail_path = "";
-      user_mail_path = "";
-  }
+      //user = "";
+      //mail_path = "";
+      //user_mail_path = "";
+//  }
 }
 
 
