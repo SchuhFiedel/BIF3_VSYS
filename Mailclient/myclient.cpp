@@ -99,7 +99,8 @@ void printMenu(){
   std::cout << "2) LIST: Auflisten der Nachrichten. Anzahl der Nachrichten die Betreff Zeile anzeigen." << std::endl;
   std::cout << "3) READ: Anzeigen einer bestimmten Nachricht." << std::endl;
   std::cout << "4) DEL : Löschen der Nachricht." << std::endl;
-  std::cout << "5) QUIT: Logout." << std::endl;
+  std::cout << "5) Login:Login into the Ldap Server." << std::end
+  std::cout << "6) QUIT: Logout." << std::endl;
   std::cout << "Please Enter the Number before the Option!" << std::endl;
   std::cout << "**************************************************************************************************" << std::endl;
 }
@@ -140,11 +141,17 @@ void menu(char * buffer, int socket){
           deleteMail(socket);
         break;
       case 5:
-          std::cout << "QUIT" << std::endl;
-          close (socket);
-          exit(0);
-          //logout();
+          system("clear");
+          std::cout << "LIST" << std::endl;
+          loginMail(socket, "A");
+          listMails(socket);
         break;
+        case 6:
+            std::cout << "QUIT" << std::endl;
+            close (socket);
+            exit(0);
+            //logout();
+          break;
       default:
           system("clear");
           std::cout << "Please Enter one of the Numbers above!" << std::endl;
@@ -152,7 +159,34 @@ void menu(char * buffer, int socket){
     }
 }
 
+void loginMail(int socket){
+  std::string username = global_username;
+  std::string pw = "";
+  /*while(mail==""|| mail.length() > 8){
+    std::cout << "Please enter which mail to read" << std::endl;
+    std::getline (std::cin,mail);
+    mail = mail.substr(0,7);
+    if(mail==""){
+      std::cout << "plase enter the subject of the mail you want to read!" << std::endl << std::endl;
+    }
+    if(mail.length() > 8){
+      std::cout << "The subject can only be 8 chars long!" << std::endl << std::endl;
+    }
+  }*/
 
+  //cnvert string to char* for sending
+  int message_length = username.length();
+  char char_Message[message_length];
+  strcpy(char_Message, username.c_str());
+  sendMessage(socket, char_Message);
+
+
+  int size;
+  char answer [BUF];
+  size = recv (socket, answer, BUF-1, 0);
+  std::cout<<"This is server answer: "<< std::endl<<std::endl<< answer << std::endl<<std::endl;
+
+}
 
 void sendMail(int socket){
   //int boop = 8;
