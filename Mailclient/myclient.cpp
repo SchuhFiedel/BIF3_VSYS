@@ -17,13 +17,13 @@
 void sendMessage(int socket, char * buffer);
 void printMenu();
 void menu(char * buffer, int socket);
-
-
 void sendMail(int socket);
 void listMails(int socket);
 void readMail(int socket);
 void deleteMail(int socket);
 void logout();
+
+bool loginMail(int socket);
 
 std::string global_username;
 
@@ -49,8 +49,6 @@ int main (int argc, char **argv) {
   address.sin_port = htons(atoi(argv[2])); //Use Port from Input (convert from char* to int)
   inet_aton (argv[1], &address.sin_addr); //convert input IP to usable IP adress
 
-  //std::cout << "using ip: " << inet_ntoa(address.sin_addr) << " Port " << htons(address.sin_port) << "\n";
-
   if (connect (create_socket, (struct sockaddr *) &address, sizeof (address)) == 0)
   {
      printf ("Connection with server (%s) established\n", inet_ntoa (address.sin_addr));
@@ -64,7 +62,6 @@ int main (int argc, char **argv) {
         buffer[size]= '\0';         //READ WHAT THE SERVER SENT US
         printf("%s",buffer);
      }
-
   }
   else
   {
@@ -72,24 +69,25 @@ int main (int argc, char **argv) {
      return EXIT_FAILURE;
   }
 
-  do {
-/************** MAIN LOOP ********************/
+  //Log in User
+  system("clear");
+  std::cout << "Login" << std::endl;
+  //sendMessage(socket, "A");
+  loginMail(create_socket);
 
+/************** MAIN LOOP ********************/
+  do {
     printMenu();
     menu(buffer, create_socket);
-
   }
   while (strcmp (buffer, "quit\n") != 0);
   close (create_socket);
   return EXIT_SUCCESS;
 }
 
-/***FUNCTIONS***/
 
+/***FUNCTIONS***/
 void sendMessage(int socket, char * message){
-  //fgets (buffer, BUF, stdin);//save stdin into buffer with max buffer size
-  //printf ("Sending message: {%s}", buffer);
-  //fgets (message, BUF, stdin);
   send(socket, message, strlen (message), 0);  // send buffer
 }
 
@@ -99,7 +97,7 @@ void printMenu(){
   std::cout << "2) LIST: Auflisten der Nachrichten. Anzahl der Nachrichten die Betreff Zeile anzeigen." << std::endl;
   std::cout << "3) READ: Anzeigen einer bestimmten Nachricht." << std::endl;
   std::cout << "4) DEL : Löschen der Nachricht." << std::endl;
-  std::cout << "5) Login:Login into the Ldap Server." << std::end
+  //std::cout << "5) Login:Login into the Ldap Server." << std::end;
   std::cout << "6) QUIT: Logout." << std::endl;
   std::cout << "Please Enter the Number before the Option!" << std::endl;
   std::cout << "**************************************************************************************************" << std::endl;
@@ -107,9 +105,7 @@ void printMenu(){
 
 void menu(char * buffer, int socket){
     fgets (buffer, BUF, stdin);
-    //std::cout<<buffer[0];
     int input = atoi(buffer);
-    //std::cout<<input;
     switch(input){
       case 1:
           system("clear");
@@ -141,12 +137,6 @@ void menu(char * buffer, int socket){
           deleteMail(socket);
         break;
       case 5:
-          system("clear");
-          std::cout << "LIST" << std::endl;
-          loginMail(socket, "A");
-          listMails(socket);
-        break;
-        case 6:
             std::cout << "QUIT" << std::endl;
             close (socket);
             exit(0);
@@ -159,33 +149,41 @@ void menu(char * buffer, int socket){
     }
 }
 
-void loginMail(int socket){
-  std::string username = global_username;
-  std::string pw = "";
-  /*while(mail==""|| mail.length() > 8){
-    std::cout << "Please enter which mail to read" << std::endl;
-    std::getline (std::cin,mail);
-    mail = mail.substr(0,7);
-    if(mail==""){
-      std::cout << "plase enter the subject of the mail you want to read!" << std::endl << std::endl;
+bool loginMail(int socket){
+  bool loggedIn = false;
+  int counter = 0;
+  while(loggedIn == false){
+    std::string username = global_username;
+    std::string pw = "";
+    //cnvert string to char* for sending
+    int message_length = username.length();
+    char char_Message[message_length];
+    strcpy(char_Message, username.c_str());
+    sendMessage(socket, char_Message);
+
+    pw = getpass("Enter pwd: ");
+    std::cout << pw << std::endl;
+
+
+    int size;
+    char answer [BUF];
+    size = recv (socket, answer, BUF-1, 0);
+    std::cout<<"This is server answer: "<< std::endl<<std::endl<< answer << std::endl<<std::endl;
+
+    if(counter < 3){
+      if(answer == "1"){
+        loggedIn = true;
+      }
+      else{
+        std::cout << "Sign-in info wrong try again!"<< std::endl;
+        std::cout << "Tries Left before 30s cooldown: " << 3-counter<< std::endl;
+      }
     }
-    if(mail.length() > 8){
-      std::cout << "The subject can only be 8 chars long!" << std::endl << std::endl;
+    else{
+      std::cout << "30 second Cooldown"<< std::endl;
     }
-  }*/
 
-  //cnvert string to char* for sending
-  int message_length = username.length();
-  char char_Message[message_length];
-  strcpy(char_Message, username.c_str());
-  sendMessage(socket, char_Message);
-
-
-  int size;
-  char answer [BUF];
-  size = recv (socket, answer, BUF-1, 0);
-  std::cout<<"This is server answer: "<< std::endl<<std::endl<< answer << std::endl<<std::endl;
-
+  }
 }
 
 void sendMail(int socket){
@@ -249,7 +247,6 @@ void listMails(int new_socket){
 
 }
 
-
 void readMail(int socket){
   std::string mail = "";
   while(mail==""|| mail.length() > 8){
@@ -277,8 +274,6 @@ void readMail(int socket){
   std::cout<<"This is server answer: "<< std::endl<<std::endl<< answer << std::endl<<std::endl;
 
 }
-
-
 
 void deleteMail(int socket){
 

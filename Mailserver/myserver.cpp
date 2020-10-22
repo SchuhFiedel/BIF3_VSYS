@@ -55,25 +55,19 @@ int main (int argc, char **argv)
     address.sin_family = AF_INET;           // I HAVE NO FUCKIN IDEA WHAT IS HaPPENING HERE
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(atoi(argv[1]));
-
     /*     bind() assigns
     the address specified by addr to the socket referred to by the file descriptor sockfd.  addrlen specifies the size, in bytes, of the address structure pointed to by addr.  Traditionally, this operation is called “assigning a name to a socket”.
     */
-
     if (bind ( create_socket, (struct sockaddr *) &address, sizeof (address)) != 0){
         perror("bind error");
         return EXIT_FAILURE;
     }
 
     listen (create_socket, MAX_CLIENTS); //Socket to listen to and maximal connection Queue lenght
-
 //THREAD STUFF
-    //pthread_t threads[MAX_CLIENTS];
-
     while (true)
     {
         int new_socket = 0;
-        //int setup = 0;
         char buffer[BUF];   //string with 1024 characters
         socklen_t addrlen = sizeof (struct sockaddr_in); //int 32 bit
         struct sockaddr_in cliaddress;
@@ -87,24 +81,10 @@ int main (int argc, char **argv)
             std::cout << "Creating a thread!!!! " << std::endl;
             send(new_socket, buffer, strlen(buffer),0);
         }
-       //for(auto &th : threads){
-        //  th.join();
-        //}
       }
-
-      //threads.push_back(std::thread(connectionLoop, address , create_socket, mailpath));
-    /*  std::thread th0(std::bind(connectionLoop, address , create_socket, mailpath));
-      std::thread th1(std::bind(connectionLoop, address , create_socket, mailpath));
-      std::thread th2(std::bind(connectionLoop, address , create_socket, mailpath));
-      std::thread th3(std::bind(connectionLoop, address , create_socket, mailpath));
-      std::thread th4(std::bind(connectionLoop, address , create_socket, mailpath));
-    */
-
      for(auto &th : threads){
         th.join();
       }
-
-
 //END THREAD STUFF
     close (create_socket);
     return EXIT_SUCCESS;
@@ -115,23 +95,9 @@ int connectionLoop(struct sockaddr_in address, int new_socket, char * mailpath){
   std::string user_mail_path = "";
   std::string user = "";
   bool end = false;
-//  int new_socket;
   int setup = 0;
   int size;
   char buffer[BUF];   //string with 1024 characters
-  //socklen_t addrlen = sizeof (struct sockaddr_in); //int 32 bit
-  //struct sockaddr_in cliaddress;
-
-//  while (end == false)
-//  {
-  /*    std::cout << "Waiting for Connection on: IP: " << inet_ntoa(address.sin_addr) << " Port: " << htons(address.sin_port) << "\n";
-      new_socket = accept ( create_socket, (struct sockaddr *) &cliaddress, &addrlen );
-      if (new_socket > 0)
-      {
-          printf ("Client connected from %s:%d...\n", inet_ntoa (cliaddress.sin_addr), ntohs(cliaddress.sin_port));
-          strcpy(buffer,"Welcome to myserver, Please enter your command:\n");
-          send(new_socket, buffer, strlen(buffer),0);
-      }*/
       do
       {
           cout << "AAA" << endl;
