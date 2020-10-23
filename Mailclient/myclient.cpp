@@ -72,7 +72,7 @@ int main (int argc, char **argv) {
   //Log in User
   system("clear");
   std::cout << "Login" << std::endl;
-  //sendMessage(socket, "A");
+
   loginMail(create_socket);
 
 /************** MAIN LOOP ********************/
@@ -97,8 +97,7 @@ void printMenu(){
   std::cout << "2) LIST: Auflisten der Nachrichten. Anzahl der Nachrichten die Betreff Zeile anzeigen." << std::endl;
   std::cout << "3) READ: Anzeigen einer bestimmten Nachricht." << std::endl;
   std::cout << "4) DEL : Löschen der Nachricht." << std::endl;
-  //std::cout << "5) Login:Login into the Ldap Server." << std::end;
-  std::cout << "6) QUIT: Logout." << std::endl;
+  std::cout << "5) QUIT: Logout." << std::endl;
   std::cout << "Please Enter the Number before the Option!" << std::endl;
   std::cout << "**************************************************************************************************" << std::endl;
 }
@@ -153,22 +152,25 @@ bool loginMail(int socket){
   bool loggedIn = false;
   int counter = 0;
   while(loggedIn == false){
+    sendMessage(socket, "A");
     std::string username = global_username;
     std::string pw = "";
+    pw = getpass("Enter pwd: ");
+  //  std::cout << pw << std::endl;
+
+    std::string msg = username + "/"+ pw;
     //cnvert string to char* for sending
-    int message_length = username.length();
+    int message_length = msg.length();
     char char_Message[message_length];
-    strcpy(char_Message, username.c_str());
+    strcpy(char_Message, msg.c_str());
     sendMessage(socket, char_Message);
 
-    pw = getpass("Enter pwd: ");
-    std::cout << pw << std::endl;
 
 
     int size;
     char answer [BUF];
     size = recv (socket, answer, BUF-1, 0);
-    std::cout<<"This is server answer: "<< std::endl<<std::endl<< answer << std::endl<<std::endl;
+    std::cout<<"This is server answer: "<< answer << std::endl<<std::endl;
 
     if(counter < 3){
       if(answer == "1"){
@@ -177,10 +179,12 @@ bool loginMail(int socket){
       else{
         std::cout << "Sign-in info wrong try again!"<< std::endl;
         std::cout << "Tries Left before 30s cooldown: " << 3-counter<< std::endl;
+        counter++;
       }
     }
     else{
       std::cout << "30 second Cooldown"<< std::endl;
+      counter = 0;
     }
 
   }
