@@ -32,6 +32,7 @@
 
 using namespace std;
 
+std::mutex mute;
 std::string mail_path = "";
 
 void receiveMsg(int new_socket, std::string user_mail_path);
@@ -382,7 +383,7 @@ void receiveMsg(int new_socket, std::string user_mail_path){
 
 
     std::string msg_path = mail_path+"/" + receiver +"/" +subject;
-    std::cout<<"Save message to"<<msg_path<<std::endl;//DEBUGSTUFF
+    //std::cout<<"Save message to"<<msg_path<<std::endl;//DEBUGSTUFF
 
     filept.open( msg_path ,ios::out);
     if(filept.is_open()){
@@ -411,12 +412,13 @@ void deleteMail(int new_socket, std::string user_mail_path){
   char c_file_to_delete [file_to_delete_length+1];
   strcpy(c_file_to_delete, file_to_delete.c_str());
 
-
+  mute.lock();
   char  reply [4];
   if(remove(c_file_to_delete) != 0 )
     strncpy (reply, "err", sizeof(reply));
   else
     strncpy (reply, "okk", sizeof(reply));
+  mute.unlock();
     //SEND REPLY
   send(new_socket, reply, strlen (reply), 0);
 }
@@ -437,7 +439,7 @@ void readmsg(int new_socket, std::string user_mail_path){
   char c_file_to_read [file_to_read_length+1];
   strcpy(c_file_to_read, file_to_read.c_str());
 
-
+  mute.lock();
   ifstream f(c_file_to_read); //taking file as inputstream
   string str;
   if(f) {
@@ -446,6 +448,7 @@ void readmsg(int new_socket, std::string user_mail_path){
      str = ss.str();
   }
   cout<<str;
+  mute.unlock();
 
   int str_length = str.length();
 
@@ -468,6 +471,7 @@ void listmsg(int new_socket, std::string user_mail_path){
   struct dirent * entry = nullptr;
   DIR * dp = nullptr;
 
+  mute.lock();
   dp = opendir(user_mail_path.c_str());
   if(dp != nullptr){
     while (entry = readdir(dp)){
@@ -483,6 +487,7 @@ void listmsg(int new_socket, std::string user_mail_path){
   else{
     all_entries = "No mails found in your Inbox!";
   }
+  mute.unlock();
 
   int all_entries_length = all_entries.length();
   char c_all_entries[all_entries_length];
