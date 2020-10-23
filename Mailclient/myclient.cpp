@@ -18,7 +18,7 @@ void sendMessage(int socket, char * buffer);
 void printMenu();
 void menu(char * buffer, int socket);
 void sendMail(int socket);
-void listMails(int socket);
+bool listMails(int socket);
 void readMail(int socket);
 void deleteMail(int socket);
 void logout();
@@ -123,17 +123,19 @@ void menu(char * buffer, int socket){
           std::cout << "READ" << std::endl;
           std::cout << "Your Inbox: " << std::endl << std::endl;
           sendMessage(socket, "L");
-          listMails(socket);
-          sendMessage(socket, "R");
-          readMail( socket);
+          if(listMails(socket)){
+            sendMessage(socket, "R");
+            readMail( socket);
+          }
         break;
       case 4:
           system("clear");
           std::cout << "DEL" << std::endl;
           sendMessage(socket, "L");
-          listMails(socket);
-          sendMessage(socket, "D");
-          deleteMail(socket);
+          if(listMails(socket)){
+            sendMessage(socket, "D");
+            deleteMail(socket);
+          }
         break;
       case 5:
             std::cout << "QUIT" << std::endl;
@@ -158,7 +160,7 @@ bool loginMail(int socket){
     pw = getpass("Enter pwd: ");
   //  std::cout << pw << std::endl;
 
-    std::string msg = username + "/"+ pw;
+    std::string msg = username + "/"+ pw + "/";
     //cnvert string to char* for sending
     int message_length = msg.length();
     char char_Message[message_length];
@@ -168,12 +170,12 @@ bool loginMail(int socket){
 
 
     int size;
-    char answer [BUF];
+    char answer [BUF] = "";
     size = recv (socket, answer, BUF-1, 0);
     std::cout<<"This is server answer: "<< answer << std::endl<<std::endl;
 
     if(counter < 3){
-      if(answer == "1"){
+      if(answer[0] == '1'){
         loggedIn = true;
       }
       else{
@@ -184,6 +186,12 @@ bool loginMail(int socket){
     }
     else{
       std::cout << "30 second Cooldown"<< std::endl;
+      /*answer = " ";
+      size = recv (socket, answer, BUF-1, 0);
+      if(strcmp(answer, "die")){
+        return EXIT_FAILURE;
+      }*/
+      sleep(30);
       counter = 0;
     }
 
@@ -242,13 +250,17 @@ void sendMail(int socket){
 
 }
 
-void listMails(int new_socket){
+bool listMails(int new_socket){
   char buffer[BUF] = "";   //string with 1024 characters
   int size;
 
   size = recv (new_socket, buffer, BUF-1, 0);
   std::cout<<"This is server answer: "<< std::endl<<std::endl<< buffer << std::endl<<std::endl;
-
+  if(buffer[0] == 'N'){
+    return false;
+  }else{
+    return true;
+  }
 }
 
 void readMail(int socket){
