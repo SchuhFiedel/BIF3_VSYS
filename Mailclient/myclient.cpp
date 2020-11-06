@@ -207,7 +207,7 @@ void sendMail(int socket){
   while(receiver == "" || receiver == global_username || receiver.length() > 8){
     std::cout << "Please enter the Receipient" << std::endl;
     std::getline (std::cin,receiver);
-    receiver = receiver.substr(0,7);
+    receiver = receiver.substr(0,8);
     if(receiver == global_username){
       std::cout << "You can not send messages to yourself sorry!" << std::endl<< std::endl;
     }
